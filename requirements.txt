@@ -1,0 +1,6 @@
+Flask
+feedparser
+scikit-learn
+pandas
+nltk
+gunicorn
