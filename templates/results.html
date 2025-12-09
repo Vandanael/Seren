@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ titre_page }}</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; margin: 40px; background-color: #f8f8f8; color: #333; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+        h1 { color: #007bff; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .article-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 6px; }
+        .article-card h2 { margin-top: 0; font-size: 1.2em; }
+        .article-card a { color: #007bff; text-decoration: none; }
+        .source { font-size: 0.9em; color: #6c757d; margin-bottom: 10px; display: block; }
+        .resume { font-size: 0.95em; line-height: 1.5; }
+        .choice-form { text-align: right; }
+        .choice-button { background-color: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
+        .choice-button:hover { background-color: #1e7e34; }
+        .chosen-ref { background-color: #e2f0ff; padding: 15px; border-left: 5px solid #007bff; margin-bottom: 20px; }
+        .chosen-ref h3 { margin-top: 0; color: #007bff; }
+        .diversity-note { color: #dc3545; font-weight: bold; }
+        .back-button { display: inline-block; margin-top: 20px; padding: 10px 15px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; transition: background-color 0.3s; }
+        .back-button:hover { background-color: #5a6268; }
+        .serendipity-section { border-top: 2px dashed #ccc; padding-top: 20px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ titre_page }}</h1>
+
+        {% if stage == 'initial' %}
+            <h2>Phase 1 : Le "Random" Nécessaire</h2>
+            <p>Nous avons sélectionné 5 articles de domaines très variés (pour briser votre bulle). **Choisissez celui qui éveille le plus votre curiosité** : ce choix nous servira d'ancrage pour vous proposer des articles de sérendipité.</p>
+            
+            {% for article in articles %}
+            <div class="article-card">
+                <span class="source">Source : {{ article.source }}</span>
+                <h2><a href="{{ article.lien }}" target="_blank">{{ article.titre }}</a></h2>
+                <p class="resume">{{ article.resume | safe | truncate(200) }}</p>
+                <form class="choice-form" action="{{ url_for('choose') }}" method="POST">
+                    <input type="hidden" name="article_id" value="{{ article.id }}">
+                    <button type="submit" class="choice-button">Choisir cet article</button>
+                </form>
+            </div>
+            {% endfor %}
+
+        {% elif stage == 'serendipity' %}
+            <div class="chosen-ref">
+                <h3>Ancrage de Pertinence (Votre Choix) :</h3>
+                <p>Vous avez choisi : **{{ article_choisi.titre }}** (Source : {{ article_choisi.source }})</p>
+            </div>
+            
+            <div class="serendipity-section">
+                <h2>Phase 2 : Le Reranking Serendipitous</h2>
+                <p>Voici vos articles de **Sérendipité** : ils sont **similaires** à votre choix (haute pertinence) mais proviennent de **sources différentes** (nouveauté et diversité pour le caractère inattendu).</p>
+                
+                {% for article in articles %}
+                <div class="article-card">
+                    <span class="source">Source : {{ article.source }} <span class="diversity-note">(Diversité !)</span></span>
+                    <h2><a href="{{ article.lien }}" target="_blank">{{ article.titre }}</a></h2>
+                    <p class="resume">{{ article.resume | safe | truncate(200) }}</p>
+                </div>
+                {% else %}
+                    <p>Aucune recommandation de sérendipité trouvée pour le moment. Veuillez réessayer avec un autre article initial.</p>
+                {% endfor %}
+            </div>
+
+            <a href="{{ url_for('home') }}" class="back-button">Recommencer (Nouveau Cycle de Sérendipité)</a>
+
+        {% endif %}
+    </div>
+</body>
+</html>
